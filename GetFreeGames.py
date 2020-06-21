@@ -48,7 +48,7 @@ while True:
 		else:
 			print("Searched through "+str(i)+'/'+str(len(appIDs))+ " titles.",end="\r")
 		if j == 20:
-			log("Sleeping 60 seconds to avoid being rate limited")
+			print("Sleeping 60 seconds to avoid being rate limited! ("+str(i)+"/"+str(len(appIDs))+")   ",end="\r")
 			j = 0
 			time.sleep(60)
 
