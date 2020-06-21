@@ -27,14 +27,24 @@ while True:
 	log("Found all games, now crawling through them to check if any is free..")
 
 	freeGames = []
+	i = 0
+	j = 0
 	for id in appIDs:
+		i+=1
+		j+=1
 		appInfo=requests.get("https://store.steampowered.com/api/appdetails?appids="+str(id),headers=headers).text
 		if "discount_percent" in appInfo:
 			s = re.search("discount_percent\":(\d+)",appInfo).group(1)
 			if s == "100":
 				freeGames.append(re.search("packageid\":(\d+)",appInfo).group(1))
-				log("Found game "+str(id))
-	
+				log("Found game "+str(id)+'   ')
+		if re.search("packageid\":(\d+)",appInfo):
+			print("Searched through "+str(i)+'/'+str(len(appIDs))+ " titles. Current subID: "+re.search("packageid\":(\d+)",appInfo).group(1)+"   ",end="\r")
+		if j == 69:
+			log("Sleeping 60 seconds to avoid being rate limited")
+			j = 0
+			time.sleep(60)
+
 	redeem("s/"+",s/".join(freeGames))
 	log("Waiting 24 hours so we're not rate limited..")
 	del freeGames
