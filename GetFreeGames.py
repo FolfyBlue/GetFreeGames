@@ -11,28 +11,28 @@ def log(x):
 	print('[' + str(datetime.now()) + "] - "+x)
 
 def redeem(key):
-	r = requests.post("http://127.0.0.1:1242/Api/Command" , json=({"Command":"addlicense ASF "+str(key)}))
+	r = requests.post("http://127.0.0.1:1242/Api/Command" , json=({"Command":"addlicense ASF "+str(key)})) #Send the games to ASF
 	log(json.loads(r.text)["Result"])
 
 
 print("Sit back and enjoy while we collect games for you.")
 while True:
-	new = requests.get("http://api.steampowered.com/ISteamApps/GetAppList/v0002/",headers=headers).text
-	apps = json.loads(new)["applist"]["apps"]
+	new = requests.get("http://api.steampowered.com/ISteamApps/GetAppList/v0002/",headers=headers).text #Request list of all games and their IDs
+	apps = json.loads(new)["applist"]["apps"] 
 	appIDs = []
 	del new
 	for i in range(len(apps)):
-		appIDs.append(apps[i]["appid"])
+		appIDs.append(apps[i]["appid"]) #Keep only the game IDs
 	del apps
 	log("Found all games, now crawling through them to check if any is free..")
 
 	freeGames = []
-	i = 0
-	j = 0
+	i = 0 #Total game count
+	j = 0 #Rate limit
 	for id in appIDs:
 		i+=1
 		j+=1
-		appInfo=requests.get("https://store.steampowered.com/api/appdetails?appids="+str(id),headers=headers)
+		appInfo=requests.get("https://store.steampowered.com/api/appdetails?appids="+str(id),headers=headers) #Get info about the current game from steamAPI
 		if appInfo.status_code == 429:
 			log("We're being rate limited! Waiting 60 seconds..")
 			time.sleep(60)
@@ -40,7 +40,7 @@ while True:
 		appInfo = appInfo.text
 		if "discount_percent" in appInfo:
 			s = re.search("discount_percent\":(\d+)",appInfo).group(1)
-			if s == "100":
+			if s == "100": #If there is a 100% reduction keep the game
 				freeGames.append(re.search("packageid\":(\d+)",appInfo).group(1))
 				log("Found game "+str(id)+'   ')
 		if re.search("packageid\":(\d+)",appInfo):
