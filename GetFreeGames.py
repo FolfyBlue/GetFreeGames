@@ -40,7 +40,9 @@ while True:
 				log("Found game "+str(id)+'   ')
 		if re.search("packageid\":(\d+)",appInfo):
 			print("Searched through "+str(i)+'/'+str(len(appIDs))+ " titles. Current subID: "+re.search("packageid\":(\d+)",appInfo).group(1)+"   ",end="\r")
-		if j == 69:
+		else:
+			print("Searched through "+str(i)+'/'+str(len(appIDs))+ " titles.",end="\r")
+		if j == 20:
 			log("Sleeping 60 seconds to avoid being rate limited")
 			j = 0
 			time.sleep(60)
