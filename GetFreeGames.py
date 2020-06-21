@@ -32,7 +32,12 @@ while True:
 	for id in appIDs:
 		i+=1
 		j+=1
-		appInfo=requests.get("https://store.steampowered.com/api/appdetails?appids="+str(id),headers=headers).text
+		appInfo=requests.get("https://store.steampowered.com/api/appdetails?appids="+str(id),headers=headers)
+		if appInfo.status_code == 429:
+			log("We're being rate limited! Waiting 60 seconds..")
+			time.sleep(60)
+			appInfo=requests.get("https://store.steampowered.com/api/appdetails?appids="+str(id),headers=headers)
+		appInfo = appInfo.text
 		if "discount_percent" in appInfo:
 			s = re.search("discount_percent\":(\d+)",appInfo).group(1)
 			if s == "100":
