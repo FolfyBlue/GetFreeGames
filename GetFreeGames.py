@@ -46,6 +46,4 @@ while True:
 			time.sleep(60)
 
 	redeem("s/"+",s/".join(freeGames))
-	log("Waiting 24 hours so we're not rate limited..")
 	del freeGames
-	time.sleep((60*60)*24)
