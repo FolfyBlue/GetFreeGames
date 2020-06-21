@@ -3,6 +3,7 @@ import json
 import re
 import time
 from datetime import datetime  
+import json
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 
 
@@ -16,16 +17,25 @@ def redeem(key):
 
 print("Sit back and enjoy while we collect games for you.")
 while True:
-	new = requests.get(url="https://www.reddit.com/r/FreeGamesOnSteam/new.json",headers=headers).text
-	if new != '{"message": "Too Many Requests", "error": 429}':
-		subID = ""
-		pages = re.findall("steampowered.com/app/\d+",new)
-		for i in pages:
-			p = requests.get("https://store."+i).text
-			s = re.search("subid\" value=\"(\d+)",p).group(1)
-			subID = "s/"+s+", "+subID
-		log(subID)
-		redeem(subID)
-	else:
-		log("We're being ratelimited!")
-	time.sleep(60*60)
+	new = requests.get("http://api.steampowered.com/ISteamApps/GetAppList/v0002/",headers=headers).text
+	apps = json.loads(new)["applist"]["apps"]
+	appIDs = []
+	del new
+	for i in range(len(apps)):
+		appIDs.append(apps[i]["appid"])
+	del apps
+	log("Found all games, now crawling through them to check if any is free..")
+
+	freeGames = []
+	for id in appIDs:
+		appInfo=requests.get("https://store.steampowered.com/api/appdetails?appids="+str(id),headers=headers).text
+		if "discount_percent" in appInfo:
+			s = re.search("discount_percent\":(\d+)",appInfo).group(1)
+			if s == "100":
+				freeGames.append(re.search("packageid\":(\d+)",appInfo).group(1))
+				log("Found game "+str(id))
+	
+	redeem("s/"+",s/".join(freeGames))
+	log("Waiting 24 hours so we're not rate limited..")
+	del freeGames
+	time.sleep((60*60)*24)
