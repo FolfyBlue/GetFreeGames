@@ -5,6 +5,7 @@ import time
 from datetime import datetime  
 import json
 from os import path
+from os import remove
 
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 configfile = "progress.json"
@@ -60,16 +61,20 @@ while True:
       if ratelimit == 20:
         print("Sleeping 60 seconds to avoid being rate limited! ("+str(i)+"/"+str(len(appIDs))+")   ",end="\r")
         ratelimit = 0
+        content = ""
         with open(configfile, 'r+') as f:
           content = json.loads(f.read())
           content["stopped_at"] = i
           content["found"] = freeGames
           f.seek(0)
+        remove(configfile)
+        with open(configfile,"w") as f:
           json.dump(content, f)
         time.sleep(60)
     else:
       k+=1
-  redeem("s/"+",s/".join(freeGames)) #Redeem the games found
+  redeem("a/"+",a/".join(freeGames)) #Redeem the games found
   del freeGames
+  remove(configfile)
   with open(configfile, "w") as f:
     f.write("{\"stopped_at\":0}")
