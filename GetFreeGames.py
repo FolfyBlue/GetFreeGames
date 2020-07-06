@@ -74,6 +74,7 @@ while True:
     else:
       k+=1
   redeem("a/"+",a/".join(freeGames)) #Redeem the games found
+  redeem("s/"+",s/".join(freeGames)) #Redeem the games found
   del freeGames
   remove(configfile)
   with open(configfile, "w") as f:
